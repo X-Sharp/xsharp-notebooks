@@ -34,3 +34,15 @@ Open the Folder that contains the Notebooks you are looking for, eg **FirstSteps
 Select the Notebook that point to the lesson you are looking for, and follow the instructions the cells.
 
 I hope you will enjoy your journey with **XSharp Interactive** !
+
+
+### License
+
+This repository is licensed under the Apache 2.0.
+
+### Content
+
+The structure and the content of this repository has been inspired by the .NET interactive notebooks for C# and the csharp-101 Notebooks.
+
+These are Copyright (c) .NET Foundation. All rights reserved.
+
