@@ -16,7 +16,7 @@ Get started learning X# with X# notebooks powered by .NET Interactive and VS Cod
 
 ### XSharp
 1. Install the latest version of [XSharp](https://www.xsharp.eu/itm-downloads?folder=installers).
-2. Download the X# Language Kernel for Polyglot Notebooks, know as [XSharpInteractive](), and follow the [installation instructions]()
+2. Download the X# Language Kernel for Polyglot Notebooks, know as [XSharpInteractive](https://github.com/X-Sharp/XSharpInteractive), and follow the [installation instructions](https://github.com/X-Sharp/XSharpInteractive/blob/main/README.md)
 
 ### Notebooks
 1. Download or Clone the repository with the Notebooks.
