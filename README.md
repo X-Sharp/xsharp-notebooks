@@ -15,8 +15,8 @@ Get started learning X# with X# notebooks powered by .NET Interactive and VS Cod
 4. If you want some syntax coloring, Install the [X# Lang](https://marketplace.visualstudio.com/items?itemName=InfomindsAG.xsharp-lang) extension.
 
 ### XSharp
-1. Install the latest version of [XSharp](https://www.xsharp.eu/itm-downloads?folder=installers).
-2. Download the X# Language Kernel for Polyglot Notebooks, known as [XSharpInteractive](https://github.com/X-Sharp/XSharpInteractive), and follow the [installation instructions](https://github.com/X-Sharp/XSharpInteractive/blob/main/README.md)
+1. Install the latest version of [XSharp](https://www.xsharp.eu/itm-downloads?folder=installers).  
+~~2. Download the X# Language Kernel for Polyglot Notebooks, known as [XSharpInteractive](https://github.com/X-Sharp/XSharpInteractive), and follow the [installation instructions](https://github.com/X-Sharp/XSharpInteractive/blob/main/README.md)~~
 
 ### Notebooks
 1. Download or Clone the repository with the Notebooks.
@@ -28,7 +28,7 @@ Get started learning X# with X# notebooks powered by .NET Interactive and VS Cod
 
 > Dont forget to look at the [How to start](HowToStart.ipynb) notebook.
 
-After all this, you have a running Visual Studio Code environment for coding with .NET 8, you have the XSharp compiler and Scripting engine installed, you have the XSharp Interactive kernel, and you have finally cloned the Notebooks : You are ready to go !
+After all this, you have a running Visual Studio Code environment for coding with .NET 8, you have the XSharp compiler and Scripting engine installed, ~~you have the XSharp Interactive kernel,~~ and you have finally cloned the Notebooks : You are ready to go !
 
 Open the Folder that contains the Notebooks you are looking for, eg **FirstSteps**.  
 Select the Notebook that point to the lesson you are looking for, and follow the instructions the cells.
