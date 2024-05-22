@@ -20,15 +20,15 @@ Get started learning X# with X# notebooks powered by .NET Interactive and VS Cod
 
 ### Notebooks
 1. Download or Clone the repository with the Notebooks.
-2. - To clone the repo, you can run VS Code. At start time, in the **welcome page**, clock on the *Clone Git Repository...* item
-- If you don't see the **welcome page**, press *ctrl* + *shift* + *p* to show the command prompt, and type *clone* and select the *Git: Clone* command.
+2. - To clone the repo, you can run VS Code. At start time, in the **welcome page**, click on the *Clone Git Repository...* item
+- If you don't see the **welcome page**, press *ctrl* + *shift* + *p* to show the command prompt, type *clone* then select the *Git: Clone* command.
 3. Copy/Paste the following URL : https://github.com/X-Sharp/xsharp-notebooks
 
 ## How to use it
 
 > Dont forget to look at the [How to start](HowToStart.ipynb) notebook.
 
-After all this, you have a running Visual Studio Code environment for coding with .NET 8, you have the XSharp compiler and Scripting engine installed, you have the XSharp Interactive kernel, and you have finally cloned the Notebooks : We are ready to go !
+After all this, you have a running Visual Studio Code environment for coding with .NET 8, you have the XSharp compiler and Scripting engine installed, you have the XSharp Interactive kernel, and you have finally cloned the Notebooks : You are ready to go !
 
 Open the Folder that contains the Notebooks you are looking for, eg **FirstSteps**.  
 Select the Notebook that point to the lesson you are looking for, and follow the instructions the cells.
