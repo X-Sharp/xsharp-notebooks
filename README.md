@@ -1,4 +1,4 @@
-# XSharp Notebooks([简体中文版](README_CN.MD))
+# XSharp Notebooks([简体中文版](https://github.com/vfp9/xsharp-notebooks/blob/xsharp-notebooks_CN/README_CN.mdD))
 Welcome to the home of X# Notebooks.
 Get started learning X# with X# notebooks powered by .NET Interactive and VS Code. 
 
