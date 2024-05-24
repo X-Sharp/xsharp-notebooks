@@ -16,7 +16,7 @@
 
 ### XSharp
 1. 安装最新版本的 [XSharp](https://www.xsharp.eu/itm-downloads?folder=installers).
-2. 下载用于 Polyglot 笔记本 的 X# 语言内核，也称之为 [XSharpInteractive](https://github.com/X-Sharp/XSharpInteractive), 并按照[安装说明](https://github.com/X-Sharp/XSharpInteractive/blob/main/README.md) 进行操作.
+~~2. 下载用于 Polyglot 笔记本 的 X# 语言内核，也称之为 [XSharpInteractive](https://github.com/X-Sharp/XSharpInteractive), 并按照[安装说明](https://github.com/X-Sharp/XSharpInteractive/blob/main/README.md) 进行操作.~~
 
 ### 笔记本
 1. 下载或者克隆本仓库.
