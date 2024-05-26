@@ -1,6 +1,7 @@
 # XSharp Notebooks
-Welcome to the home of X# Notebooks.
-Get started learning X# with X# notebooks powered by .NET Interactive and VS Code. 
+Welcome to the home of **X# Notebooks**.  
+Get started learning X# with X# notebooks powered by .NET Interactive and VS Code.  
+All the Notebooks have been written using the **Core** *dialect* of X#, but don't forget that the full version of X# Language support several xBase Dialects : Visual Objects, Vulcan.NET, xBase++, Harbour, Visual FoxPro and more.  
 
 ## How to Install
 
