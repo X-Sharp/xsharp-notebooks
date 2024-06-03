@@ -37,6 +37,13 @@ Select the Notebook that point to the lesson you are looking for, and follow the
 I hope you will enjoy your journey with **XSharp Interactive** !
 
 
+| Notebooks | Description| X# Dialect | Level | 
+| -------- |--- | ------- |---| 
+| [First Steps](./FirstSteps/) | Start learning X# language | Core | Beginner
+| Simple SQL | Using SQLite in your X# Application, and change for MariaDB, PostgreSQL, ... | Core | Intermediate
+| First Steps VFP | Start X# with your VFP background | VFP | Beginner
+
+
 ### License
 
 This repository is licensed under the Apache 2.0.
