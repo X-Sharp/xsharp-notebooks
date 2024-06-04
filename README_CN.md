@@ -1,4 +1,6 @@
 # XSharp 笔记本
+[English](README.md)|[简体中文版](README_CN.md)
+
 欢迎来到 X# 笔记本 主页。
 现在您可以使用由 .NET Interactive 和 VS Code 提供支持的 X# 笔记本 了。 
 
