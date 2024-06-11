@@ -1,8 +1,11 @@
-# XSharp 笔记本
-[English](README.md)|[简体中文版](README_CN.md)
+# XSharp 笔记
+[English](README.md)|[简体中文](README_CN.md)
 
-欢迎来到 X# 笔记本 主页。
-现在您可以使用由 .NET Interactive 和 VS Code 提供支持的 X# 笔记本 了。 
+欢迎来到 X# 笔记 主页。
+
+现在您可以使用由 .NET Interactive 和 VS Code 提供支持的 X# 笔记了。 
+
+笔记的内容是使用 X# 的 **Core** 方言书写，但是不要忘记完整版本的 X# 也支持其他的 xBase 方言：Visual Objects, Vulcan.NET, xBase++, Harbour, Visual FoxPro 等。
 
 ## 安装方法
 
@@ -28,13 +31,19 @@
 
 ## 使用方法
 
-> 切勿忘记查看 [如何开始使用](HowToStart_CN.ipynb) 笔记本.
+> 切勿忘记查看 [如何开始使用](HowToStart_CN.ipynb) 笔记。
 
 一切就绪后，你就拥有一个正在使用的 Visual Studio Code 环境，并且可以使用 .NET 8 进行编程，您也安装了 X# 编译器和脚本引擎，~~也拥有了 X# 内核，~~并且拥有了记事本。万事就绪，东风吹起！  
 
 打开包含记事本内容的文件夹，例如 **FirstSteps**.  然后打开你需要查看的课程，然后，就算按着说明来操作:)
 
 享受您的 **XSharp Interactive** 之旅吧 !
+
+| 笔记 | 描述| X# 方言 | 等级 | 
+| -------- |--- | ------- |---| 
+| [First Steps](./FirstSteps_ZH-CN/00-目录.ipynb) | 开始学习 X# | Core | 初级
+| [Simple SQL](./WorkInProgress_CN.ipynb) | 在 X# 中国使用 SQLite，或者是 MariaDB, PostgreSQL, ... | Core | 中级
+| [First Steps VFP](./WorkInProgress_CN.ipynb) | 具有 VFP 背景如何使用 X# | VFP | 初级
 
 
 ### 许可

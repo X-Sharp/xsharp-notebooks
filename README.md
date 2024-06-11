@@ -1,5 +1,5 @@
 # XSharp Notebooks
-[English](README.md)|[简体中文版](README_CN.md)
+[English](README.md)|[简体中文](README_CN.md)
 
 Welcome to the home of **X# Notebooks**.  
 Get started learning X# with X# notebooks powered by .NET Interactive and VS Code.  
