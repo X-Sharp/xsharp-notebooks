@@ -1,0 +1,73 @@
+using System.Collections.Generic
+
+CLASS Transaction
+    // Properties
+    PUBLIC PROPERTY Amount AS DECIMAL AUTO GET
+    PUBLIC PROPERTY Date AS DateTime AUTO GET
+    PUBLIC PROPERTY Notes AS STRING AUTO GET
+    
+    // Constructor 
+    PUBLIC CONSTRUCTOR( trAmount AS Decimal, trDate AS DateTime, trNote AS String )
+        SELF:Amount := trAmount
+        SELF:Date := trDate
+        SELF:Notes := trNote
+    END CONSTRUCTOR
+
+END CLASS
+
+
+CLASS BankAccount
+    // Properties
+    PUBLIC PROPERTY Number AS STRING AUTO GET SET
+    PUBLIC PROPERTY Owner AS STRING AUTO GET SET
+    PUBLIC PROPERTY Balance AS Decimal
+        GET
+            VAR currentBalance := 0.0M
+            FOREACH VAR item IN SELF:allTransactions
+                currentBalance += item:Amount
+            NEXT
+            RETURN currentBalance
+        END GET
+    END PROPERTY
+    PRIVATE STATIC accountBaseNumber := 1234567890 AS INT
+    PRIVATE allTransactions := List<Transaction>{} AS List<Transaction>
+        
+    // Constructor
+    PUBLIC CONSTRUCTOR( name AS STRING, initialBalance AS DECIMAL )
+        SELF:Owner := name
+        SELF:Number := accountBaseNumber:ToString()
+        accountBaseNumber ++
+        // 
+        SELF:MakeDeposit(initialBalance, DateTime.Now, "Initial balance")
+    END CONSTRUCTOR
+    
+    // Methods
+    PUBLIC METHOD MakeDeposit( amount AS DECIMAL, depositDate AS DateTime, notes AS STRING ) AS VOID
+        // 
+        IF (amount <= 0)
+            THROW ArgumentOutOfRangeException{ nameof(amount), "Amount of deposit must be positive" }
+        ENDIF 
+        var deposit := Transaction{ amount, depositDate, notes }
+        allTransactions:Add(deposit)
+    END METHOD
+
+    PUBLIC METHOD MakeWithdrawal( amount AS DECIMAL, withdrawDate AS DateTime, notes AS STRING ) AS VOID
+        // 
+        IF (amount <= 0)
+            THROW ArgumentOutOfRangeException{ nameof(amount), "Amount of withdrawal must be positive" }
+        ENDIF
+        IF (Balance - amount < 0)
+            THROW InvalidOperationException{ "Not sufficient funds for this withdrawal" }
+        ENDIF
+        var withdrawal = Transaction{-amount, withdrawDate, notes}
+        allTransactions:Add(withdrawal)
+    END METHOD
+
+    // Retrieve a copy of the List
+    PROPERTY Transactions AS Transaction[]
+        GET
+            RETURN allTransactions:ToArray()
+        END GET
+    END PROPERTY
+END CLASS
+
