@@ -212,3 +212,7 @@ Make a program that can read a text file, and rewrite it backwards.
 > 2. The contents of the new file will be the same as the original, but in reverse...character by character.
 > 3. Display the contents of the new file.
 > 4. Once the copy has been made, write the code to check that the files are indeed “symmetrical”.
+
+#!xsharp
+
+? "Sandbox"
