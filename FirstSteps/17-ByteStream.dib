@@ -1,0 +1,214 @@
+#!meta
+
+{"kernelInfo":{"defaultKernelName":"csharp","items":[{"aliases":[],"languageName":"csharp","name":"csharp"},{"aliases":[],"languageName":"X#","name":"xsharp"}]}}
+
+#!markdown
+
+# Load the *XSharp Language kernel*.
+
+#!csharp
+
+// <-= Press on the Arrow to run Me
+#r "nuget:XSharpInteractive"
+
+#!markdown
+
+# Byte stream
+
+A **Stream** is a view of a sequence of Bytes (`byte[]`).   
+In the rest of this Notebook, we'll be talking mainly about `FileStream` file streams, but as a stream is generic, the elements we'll be covering apply equally to other forms of stream, such as `NetworkStream`, `MemoryStream`, `CryptoStream`, ...   
+
+#!markdown
+
+## From Byte to String
+
+A character-string is ... a sequence of characters ;)   
+
+But a character doesn't necessarily fit on 1 `Byte`, it depends on the **encoding** used.  
+The oldest encoding is **ASCII**: it fits on 1 Byte, and is sufficient for the 26 letters of the Western alphabet, with upper and lower case, numbers and special characters.   
+
+But to support more possibilities (Cyrillic, Kanjii, Hangul, ...), other forms of encoding have been created, such as **Unicode**, **UTF-8**, **UTF-16**, ...  
+In **UTF-8**, for example, a character can be encoded in 1 to 4 bytes! It is therefore **impossible** to directly convert 1 character into 1 byte.
+
+In C#, there are **encoders** that allow us to switch from one to the other, but this implies that you know what you're manipulating.  
+
+> For example, you can switch from a string to an array of bytes...
+
+#!xsharp
+
+USING System.Text
+
+var oneString := "Hi to all ! Here are some international characters : é, ô, ü, ß"
+var ascii := ASCIIEncoding{}
+var utf8 := UTF8Encoding{}
+LOCAL infoAscii := ascii:GetBytes(oneString) AS BYTE[]
+var infoUtf8 := utf8:GetBytes(oneString)
+
+? i"In ASCII, we have {infoAscii:Length} bytes"
+? i"In UTF8, we have {infoUtf8:Length} bytes"
+
+#!markdown
+
+> ... and from an array of bytes to a string   
+
+To do this, you'll need to specify the **encoder**, the array containing the information, as well as the position in the array at which you're starting, and on how many bytes.   
+You can also simply give the byte array, and .Net will decode the whole thing.
+
+#!xsharp
+
+// Let's try decode with the wrong Decoder
+var newString := ascii:GetString( infoAscii, 0, infoAscii:Length )
+? newString
+
+// Ok, now use the right one
+newString := utf8:GetString( infoUtf8 )
+? newString
+
+#!markdown
+
+## Writing to a stream
+
+We're going to write bytes which, as with the previous manipulations, can be converted from strings.
+
+#!xsharp
+
+using System.IO
+using System.Text
+
+// Our Test file
+LOCAL path := "c:\temp\MyTest.txt" AS STRING
+// Remove, if needed
+IF File.Exists(path)
+    File.Delete(path)
+ENDIF
+// Create the file and stream object
+LOCAL myStream := File.Create(path) AS FileStream
+
+var someText := "XSharp Rocks !! Spread the words !"
+var utf8 := UTF8Encoding{}
+var infoUtf8 := utf8:GetBytes(someText)
+myStream:Write( infoUtf8 )
+// !!! Warning !!! Don't forget to close the Stream !!!
+myStream:Close()
+
+#!markdown
+
+## Opening / Closing
+
+A common problem is *forgetting* to close the feed.  
+In such a situation, it's the **Garbage Collector** that will decide when to close, and this will be at the moment when the variable is deleted from memory, a moment we don't control.
+
+> Try the previous code again, but first comment out the **closure**.  
+The first time you run it, you won't see any change, but if you try a second time, what are the consequences?  
+**You will probably have to close VSCode to move on to the next step....**
+
+#!markdown
+
+## Variable lifetime: `using` statement
+
+The `using` instruction provides a convenient syntax that ensures the correct use of objects by specifying their lifetime.   
+
+> The code below performs the same function as the previous one, but specifies when to _create_ and _delete_ the flow variable.   
+> The _deletion_ of the stream causes the stream to be closed, as the `FileStream` class is written that way.
+
+#!xsharp
+
+using System.IO
+using System.Text
+
+// Our Test file
+LOCAL path := "c:\temp\MyTest.txt" AS STRING
+// Remove, if needed
+IF File.Exists(path)
+    File.Delete(path)
+ENDIF
+// Create the file and stream object
+BEGIN USING VAR myStream := File.Create(path)
+    
+    var someText := "XSharp Rocks !! Spread the words !"
+    var utf8 := UTF8Encoding{}
+    var infoUtf8 := utf8:GetBytes(someText)
+    myStream:Write( infoUtf8 )
+
+END USING
+// At this point, the variable 'myStream' does not exist anymore, and the stream has been closed.
+
+#!markdown
+
+# Reading a feed
+
+And now, how to read a stream?
+
+First, we'll open it by specifying not only its path but also its opening mode, via the [FileMode](https://learn.microsoft.com/fr-fr/dotnet/api/system.io.filemode?view=net-7.0) enumeration.
+
+#!xsharp
+
+using System.IO
+using System.Text
+
+LOCAL myStream := File.Open(path, FileMode.Open ) AS FileStream
+
+#!markdown
+
+We can now retrieve the stream size, reserving an array of bytes to store all the bytes.
+
+#!xsharp
+
+var size := myStream:Length
+var content := BYTE[]{size}
+myStream:Read( content, 0, (int)size )
+? i"{size} Bytes read."
+
+#!markdown
+
+And don't forget to close the stream...
+
+#!xsharp
+
+myStream:Close()
+
+#!markdown
+
+Note that as you read the byte stream, you move forward in the file.  
+The **file pointer** remembers where you are in the file, and you can advance it as you wish using `Seek`.
+
+> In this way, we position ourselves on the last 5 bytes of files, before reading them and displaying their value in Hexadecimal, Decimal and Character.   
+> Note the content of the format string: `{index[,alignment][:formatString]}`.
+
+#!xsharp
+
+LOCAL myStream := File.Open(path, FileMode.Open ) AS FileStream
+
+var size := myStream:Length
+IF size > 6
+    // Move the file pointer
+    myStream:Seek( size - 6, SeekOrigin.Begin )
+ENDIF
+
+var content := BYTE[]{6}
+// Read from the current position
+myStream:Read( content, 0, content:Length )
+myStream:Close()
+
+foreach VAR oneByte in content
+    ? string.Format("0x{0:X2}", oneByte) + " - " + string.Format("{0,3:#}", oneByte) + " - " + string.Format("{0}", Convert.ToChar(oneByte) )
+NEXT
+
+#!markdown
+
+And you can also read the entire contents of the file at once.
+
+#!xsharp
+
+var content := File.ReadAllBytes( path )
+? i"{content:Length} Bytes read."
+
+#!markdown
+
+# Sanbox: Your turn
+
+Make a program that can read a text file, and rewrite it backwards.   
+> 1. The new file will have the same name as the original, but in reverse (including the extension).
+> 2. The contents of the new file will be the same as the original, but in reverse...character by character.
+> 3. Display the contents of the new file.
+> 4. Once the copy has been made, write the code to check that the files are indeed “symmetrical”.
