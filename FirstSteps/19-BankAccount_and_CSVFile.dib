@@ -1,0 +1,159 @@
+#!meta
+
+{"kernelInfo":{"defaultKernelName":"csharp","items":[{"aliases":[],"languageName":"csharp","name":"csharp"},{"aliases":[],"languageName":"X#","name":"xsharp"}]}}
+
+#!markdown
+
+# Load the *XSharp Language kernel*.
+
+#!csharp
+
+// <-= Press on the Arrow to run Me
+#r "nuget:XSharpInteractive"
+
+#!markdown
+
+# Backup and Restore
+
+If you have followed the previous Notebooks, you have created a simple BankAccount management application and you know to read and write files.
+
+The goal of this Notebook is to save and restore your BankAccount informations.  
+To achieve, we will create a `StorageClass` that will do the job.
+
+## Storage File
+
+### CSV Backup Method
+
+This method will create the file, based on the Owner's name and enumerate all transactions to write them as a **C**omma **S**eparated **V**alue.
+
+> Add this code to the `Backup` method :
+
+    var fileName := account:Owner + ".csv"
+    BEGIN USING VAR sw := StreamWriter{fileName}
+        VAR allTransact := account:Transactions
+        FOREACH VAR transact IN allTransact
+            // 
+            var info := string.Format("{0:dd/MM/yyyy}", transact:Date)
+            info += ";" + string.Format("{0:N2}", transact:Amount)
+            info += ";" + transact:Notes
+            sw:WriteLine( info )
+        NEXT
+    END USING
+
+#!xsharp
+
+// Import the existing Class definition
+#!import FirstStepsCode.dib
+using System.IO
+
+CLASS StorageFile
+
+    METHOD CSVBackup( account AS BankAccount ) AS VOID
+        // Paste Here
+    END METHOD
+
+END CLASS
+
+#!markdown
+
+Now, we must create a BankAccount object with some transactions, then we can create a StorageFile and backup the .
+
+#!xsharp
+
+var account := BankAccount{ "Bruce", 1000 }
+account:MakeWithdrawal(500, DateTime.Now, "Batcave Rent payment")
+account:MakeDeposit(100, DateTime.Now, "Peter Parker paid me back")
+
+var storage := StorageFile{}
+storage:CSVBackup( account )
+
+#!markdown
+
+You should have a file called **Bruce.csv** in your folder : Open it, and check the content against the previous code.
+
+#!markdown
+
+### CSV Restore Method
+
+This method will read a file, and create a BankAccount object using the FileName as Owner's name. We will read line by line and create the Transactions.  
+
+In order to proceed, we are using the `Split` method of the `String` class :  
+It search for a char, copy the parts between these char to a string array.  
+Then we will **Convert** each part to expected type in order to create a **Transaction**, using the methods of the **Convert** class.
+
+`DateTime` are a bit more complex to handle due to the various `CultureInfo`.  
+Here, we will specify the format of the string used in the convertion.
+
+
+> Add this code to the `Restore` method :
+
+    LOCAL account := NULL AS BankAccount
+    BEGIN USING VAR sr := StreamReader{fileName}
+        // 
+        LOCAL oneLine AS STRING
+        REPEAT
+            oneLine := sr:ReadLine()
+            IF !String.IsNullOrEmpty( oneLine )
+                VAR info := oneLine:Split( ';' )
+                var dt := DateTime.ParseExact(info[1], "dd/MM/yyyy", CultureInfo.InvariantCulture)
+                var amount := Convert.ToDecimal( info[2] )
+                IF account == NULL
+                    account := BankAccount{ Path.GetFileNameWithoutExtension( fileName ), amount }
+                ELSE
+                    IF amount >= 0
+                        account:MakeDeposit( amount, dt, info[3] )
+                    ELSE
+                        account:MakeWithdrawal( -amount, dt, info[3] )
+                    ENDIF
+                ENDIF
+            ENDIF
+        UNTIL ( String.IsNullOrEmpty( oneLine ) )
+    END USING
+    RETURN account
+
+#!xsharp
+
+// Import the existing Class definition
+#!import FirstStepsCode.dib
+using System.IO
+using System.Globalization
+
+CLASS StorageFile
+
+    METHOD CSVBackup( account AS BankAccount ) AS VOID
+        var fileName := account:Owner + ".csv"
+        BEGIN USING VAR sw := StreamWriter{fileName}
+            VAR allTransact := account:Transactions
+            FOREACH VAR transact IN allTransact
+                // 
+                var info := string.Format("{0:dd/MM/yyyy}", transact:Date)
+                info += ";" + string.Format("{0:N2}", transact:Amount)
+                info += ";" + transact:Notes
+                sw:WriteLine( info )
+            NEXT
+        END USING
+    END METHOD
+
+    METHOD CSVRestore( fileName AS STRING ) AS BankAccount
+        // Paste here
+        
+
+    END METHOD
+
+END CLASS
+
+#!markdown
+
+Ok, we have a Restore Method : Let's try it using the previously created file !
+
+#!xsharp
+
+var storage := StorageFile{}
+var account := storage:CSVRestore( "Bruce.csv" )
+? "Operations list: "
+var list := account:Transactions
+FOR VAR i:= 1 TO list:Length
+    VAR dt := string.Format("{0:dd/MM/yyyy}", list[i]:Date)
+    var am := string.Format("{0,15:N2}", list[i]:Amount)
+    ? dt + am + "   " + list[i]:Notes
+NEXT

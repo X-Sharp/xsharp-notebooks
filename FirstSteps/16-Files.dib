@@ -1,0 +1,136 @@
+#!meta
+
+{"kernelInfo":{"defaultKernelName":"csharp","items":[{"aliases":[],"name":"csharp"},{"aliases":[],"languageName":"X#","name":"xsharp"}]}}
+
+#!markdown
+
+# Load the *XSharp Language kernel*.
+
+#!csharp
+
+// <-= Press on the Arrow to run Me
+#r "nuget:XSharpInteractive"
+
+#!markdown
+
+# Files
+
+For file manipulation, .NET offers several tool classes, depending on what you want to do. Most of the elements we're interested in are found in the **System.IO** namespace, so we'll need to specify at the start of our code that we're going to `use` it by indicating :  
+> using System.IO  
+
+Here are some commonly used file and directory classes:
+
+[File](https://learn.microsoft.com/fr-fr/dotnet/api/system.io.file?view=net-7.0) provides static methods for creating, copying, deleting, moving and opening files, and can be used to create a [FileStream](https://learn.microsoft.com/fr-fr/dotnet/api/system.io.filestream?view=net-7.0) object.
+
+[FileInfo](https://learn.microsoft.com/fr-fr/dotnet/api/system.io.fileinfo?view=net-7.0) provides instance methods for creating, copying, deleting, moving and opening files, and can be used to create a [FileStream](https://learn.microsoft.com/fr-fr/dotnet/api/system.io.filestream?view=net-7.0) object.
+
+[Directory](https://learn.microsoft.com/fr-fr/dotnet/api/system.io.directory?view=net-7.0) provides static methods for creating, moving and enumerating directories and sub-directories.
+
+[DirectoryInfo](https://learn.microsoft.com/fr-fr/dotnet/api/system.io.directoryinfo?view=net-7.0) provides instance methods for creating, moving and enumerating directories and sub-directories.
+
+#!markdown
+
+## To Escape or not To Escape ? 
+
+A quick note about the usage of the Escape char.
+
+The character **\\** in a string, can be used to make a special character or as a separator in a file path.  
+For example, to make a tabulation on the console, we'd write `"\t"`.   
+
+But how do you write a **\\** ?  
+In general with X#, you have nothing to do. So to get write on the console "C:\Temp", you'd have :
+> 
+    ? "C:\Temp"
+
+And if you want to move the text using a tab ??
+You can prefix the string with the letter **e** (as Escaped), and then **\\** are interpreted as special character marker.
+> 
+    ? e"\t" + "C:\Temp"
+
+#!markdown
+
+## Path class
+
+This 'tool' class can be used to check whether a string contains an extension, whether the contained path is attached to the root, to transform a relative path into an absolute path, to check whether a path exists, ...   
+
+> Here are a few examples. Feel free to modify them after you've tried (and understood!) what's going on below.   
+And explore the different methods offered by `Path`.
+
+#!xsharp
+
+using System.IO
+
+var path1 := "c:\temp\MyTest.txt"
+var path2 := "c:\temp\MyTest"
+var path3 := "temp"
+
+IF Path.HasExtension(path1)
+    ? i"<{path1}> has an extension."
+ENDIF
+
+IF !Path.HasExtension(path2)
+    ? i"<{path2}> has no extension."
+ENDIF
+
+IF !Path.IsPathRooted(path3)
+    ? i"The Path <{path3}> has no Root information."
+ENDIF
+
+? i"The fullpath for <{path3}> is {Path.GetFullPath(path3)}."
+? i"{Path.GetTempPath()} is the temporary file folder."
+? i"{Path.GetTempFileName()} can be a unique temporary file path."
+
+#!markdown
+
+## Directory class
+
+This class lets you create and delete folders, move files from one folder to another, and enumerate (list) the files a folder contains.
+
+> Try out the code below.  
+ Then specify the type of file you're looking for, as indicated in the comment.
+
+#!xsharp
+
+using System.IO
+
+var sourceDirectory = "C:\Temp"
+
+IF !Directory.Exists( sourceDirectory )
+    Directory.CreateDirectory( sourceDirectory)
+ENDIF
+
+var listOfFiles := Directory.EnumerateFiles(sourceDirectory)
+// var listOfFiles := Directory.EnumerateFiles(sourceDirectory, "*.txt")
+FOREACH VAR currentFile IN listOfFiles
+    // We extract the Filename based on the length of the Directory
+    var fileName := currentFile:Substring(sourceDirectory:Length + 1)
+    // We could have used the Path class
+    // var fileName := Path.GetFileName( currentFile )
+    ? fileName
+NEXT
+
+#!markdown
+
+## File class
+
+This class, as its name suggests, enables operations related to the files themselves.  
+So you can test whether a file exists, rename it, delete it, etc.   
+You can even encrypt a file!
+
+#!xsharp
+
+using System.IO
+
+var path := "c:\temp\MyTest.txt"
+IF File.Exists(path)
+    var content := File.ReadAllText( path )
+    ? content
+ENDIF
+
+#!xsharp
+
+// We are in another Cell, we can redefine a var, but don't forget this is specific to Notebooks ! ;)
+var content := "This is the new content of the file. XSharp Rocks !!!"
+File.WriteAllText( path, content )
+// Try to read the content of the file using the Notepad after crypting. Then try to open it using another computer.
+File.Encrypt( path )

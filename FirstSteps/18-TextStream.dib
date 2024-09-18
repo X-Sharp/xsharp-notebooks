@@ -1,0 +1,106 @@
+#!meta
+
+{"kernelInfo":{"defaultKernelName":"csharp","items":[{"aliases":[],"languageName":"csharp","name":"csharp"},{"aliases":[],"languageName":"X#","name":"xsharp"}]}}
+
+#!markdown
+
+# Load the *XSharp Language kernel*.
+
+#!csharp
+
+// <-= Press on the Arrow to run Me
+#r "nuget:XSharpInteractive"
+
+#!markdown
+
+# Text Stream
+
+To manage the content of a stream in text form, we can use `tool` classes, which will exploit the byte stream for us.  
+
+The `StreamWriter` class lets you write text directly into a stream.   
+The `StreamReader` class lets you read text from a stream.
+
+
+These can be used in a number of ways.
+
+## Direct access
+
+> In the example below, by specifying a file name, the stream will be created by the `StreamWriter` class.
+ 
+
+#!xsharp
+
+using System.IO
+
+var sourceDirectory := "C:\Temp"
+
+IF !Directory.Exists( sourceDirectory ) 
+    Directory.CreateDirectory( sourceDirectory)
+ENDIF
+
+var listOfFiles := Directory.EnumerateFiles(sourceDirectory);
+// var listOfFiles := Directory.EnumerateFiles(sourceDirectory, "*.txt"); 
+// Write the list of file, on your Desktop
+VAR desktop := Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
+? i"Desktop path : {desktop}"
+var file := Path.Combine( desktop, "listOfFiles.txt" )
+? i"Saving in : {file}"
+BEGIN USING VAR sw := StreamWriter{file}
+    FOREACH VAR currentFile IN listOfFiles
+        // Extract Filename
+        var fileName := Path.GetFileName( currentFile )
+        sw:WriteLine( fileName )
+    NEXT
+END USING
+
+#!markdown
+
+## Access via the Stream
+
+> In the example below, we use the stream.  
+Here it's a file stream, but it could be another type of stream. (Network, ...)
+
+#!xsharp
+
+using System.IO
+
+var sourceDirectory := "C:\Temp"
+
+IF !Directory.Exists( sourceDirectory ) 
+    Directory.CreateDirectory( sourceDirectory)
+ENDIF
+
+var listOfFiles := Directory.EnumerateFiles(sourceDirectory);
+// var listOfFiles := Directory.EnumerateFiles(sourceDirectory, "*.txt"); 
+// Write the list of file, on your Desktop
+VAR desktop := Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
+? i"Desktop path : {desktop}"
+var file := Path.Combine( desktop, "listOfFiles.txt" )
+? i"Saving in : {file}"
+// Create a File Stream
+BEGIN USING VAR fs := FileStream{file, FileMode.OpenOrCreate}
+    // Use this Stream to Write
+    BEGIN USING VAR sw := StreamWriter{fs}
+        FOREACH VAR currentFile IN listOfFiles
+            // Extract Filename
+            var fileName := Path.GetFileName( currentFile )
+            sw:WriteLine( fileName )
+        NEXT
+    END USING
+END USING
+
+#!markdown
+
+# Sandbox: Your turn
+
+Make a program that can read a text file, and rewrite it backwards, **line by line**.   
+You'll need to use the `StreamWriter` class and the `StreamReader` class.  
+
+> 1. The new file will have the same name as the original, but in reverse (including the extension).
+> 2. The contents of the new file will be the same as the original, but in reverse... line by line.
+> 3. Display the contents of the new file.
+> 4. Once the copy has been made, write the code to check that the files are indeed “symmetrical”.
+
+#!xsharp
+
+? "Sandbox"
