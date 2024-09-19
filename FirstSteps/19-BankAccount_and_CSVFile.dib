@@ -157,3 +157,10 @@ FOR VAR i:= 1 TO list:Length
     var am := string.Format("{0,15:N2}", list[i]:Amount)
     ? dt + am + "   " + list[i]:Notes
 NEXT
+
+#!markdown
+
+Great !!
+
+You can now read and write files.  
+Now, have a look at the [Simple SQL Notebooks](../Simple%20SQL/01-SQLite%20Library.ipynb) to use X# to read and write data on a SQL Server.
