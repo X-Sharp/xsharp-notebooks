@@ -28,6 +28,8 @@ There are different types of **Command** : *Query* or *NonQuery*.
 - *Query* are used for any result set with multiple rows/columns. We will get the result through a ***Reader*** (e.g. `SELECT elt1,elt2 FROM table1`)
 - *Scalar* are also a kind of *Query* and are used when your Query returns a single value. If it returns more than one, then the result is the first column of the first row.
 
+# NonQuery
+
 ## Table Creation
 
 Based on the previous paragraph, we can guess we will have to execute a *NonQuery* **Command**.
@@ -144,7 +146,7 @@ In order to use parameters, you must create the **SQL Command** and put some *pl
 >
          INSERT INTO <table> ( <field1>, <field2>) VALUES (@placeholder1, @placeholder2)
 
-> Copy the following code in the block
+> Copy the following code in the block, and test
 >
         LOCAL myName AS STRING
         myName := // Write your name here
@@ -155,6 +157,8 @@ In order to use parameters, you must create the **SQL Command** and put some *pl
         // 
         command:Parameters:AddWithValue("@name", myName)
         command:ExecuteNonQuery()
+
+Modify the code to check another userId.
 
 #!xsharp
 
