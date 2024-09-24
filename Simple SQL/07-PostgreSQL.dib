@@ -1,0 +1,178 @@
+#!meta
+
+{"kernelInfo":{"defaultKernelName":"csharp","items":[{"aliases":[],"languageName":"csharp","name":"csharp"},{"aliases":[],"languageName":"X#","name":"xsharp"}]}}
+
+#!markdown
+
+# Load the *XSharp Language kernel*
+
+#!markdown
+
+// <-= Press on the Arrow to run Me
+#r "nuget:XSharpInteractive"
+
+#!markdown
+
+# PostgreSQL
+
+PostgreSQL is a powerful, open source object-relational database system.
+
+In order to use the next Notebooks, you will need to have a running PostgreSQL server.
+
+## Installation
+You can download an installer for [PostgreSQL](https://www.postgresql.org/download/windows/), or you can get the [binaries for Windows](https://www.enterprisedb.com/download-postgresql-binaries).
+
+## Nuget Package
+In order to access the PostgreSQL server we will need install and use the **npgsql** package. You will find the same Classes/Methods/Properties that we had with **SQLite**, but they are prefixed with **Npgsql**.  
+In order to use them, you will have to add a `using Npgsql`.
+
+#!csharp
+
+// <-= Press on the Arrow to install the package
+#r "nuget:npgsql"
+
+#!markdown
+
+## Loading
+Now, load the DLL into **XSharpInteractive** .  
+***Don't forget to adapt the path to your own configuration.***
+
+#!xsharp
+
+// Load the DLL in the XSharpInteractive context
+#r "C:\Users\fabri\.nuget\packages\npgsql\8.0.4\lib\net8.0\Npgsql.dll"
+
+#!markdown
+
+## Usage
+
+## CREATE DATABASE
+
+First, we will create Database :
+- Create a ConnectionString not linked to a specific Database
+- Execute the CREATE DATABASE command
+
+> Execute the following code (only once!)
+
+#!xsharp
+
+using System.IO
+using Npgsql
+#include "Xsharpdefs.xh"
+
+var connectionString := NpgsqlConnectionStringBuilder{}
+connectionString:Host := "localhost"
+connectionString:Username := "postgres"
+connectionString:Password := "root"     // Change the password according to your installation
+
+LOCAL dbCreate AS STRING
+TEXT TO dbCreate
+    CREATE DATABASE xsharpnotebooks
+    WITH OWNER = postgres
+    ENCODING = 'UTF8'
+    CONNECTION LIMIT = -1;
+
+ENDTEXT
+
+BEGIN USING var connection := NpgsqlConnection{connectionString:ToString()}
+    connection:Open()
+    //
+    BEGIN USING var command := connection:CreateCommand()
+        command:CommandText := dbCreate
+        command:ExecuteNonQuery()
+    END USING
+END USING
+
+#!markdown
+
+## CREATE TABLE
+Just like in the previous Notebooks, we will now **CREATE** the Table and **INSERT** few rows.
+
+> Copy the following SQL command, and paste between `TEXT ... ENDTEXT`  
+( Hint : Leave a blank line between the last semi-colon and the `ENDTEXT` keyword)
+
+    DROP TABLE IF EXISTS "user";
+
+    DROP SEQUENCE IF EXISTS users_id_seq;
+    
+    CREATE SEQUENCE users_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1;
+
+    CREATE TABLE "public"."user" (
+        "id" bigint DEFAULT nextval('users_id_seq') NOT NULL,
+        "name" character varying,
+        CONSTRAINT "users_pk" PRIMARY KEY ("id")
+    ) WITH (oids = false);
+
+    INSERT INTO "user" ("id", "name") VALUES
+    (1,	'Diana'),
+    (2,	'Bruce Wayne'),
+    (3,	'Peter Parker'),
+    (4,	'Natasha');
+
+#!xsharp
+
+using System.IO
+using Npgsql
+#include "Xsharpdefs.xh"
+
+var connectionString := NpgsqlConnectionStringBuilder{}
+connectionString:Host := "localhost"
+connectionString:Database := "xsharpnotebooks"
+connectionString:Username := "postgres"
+connectionString:Password := "root"
+
+LOCAL tableDef AS STRING
+TEXT TO tableDef
+
+
+ENDTEXT
+
+BEGIN USING var connection := NpgsqlConnection{connectionString:ToString()}
+    connection:Open()
+    //
+    BEGIN USING var command := connection:CreateCommand()
+        command:CommandText := tableDef
+        command:ExecuteNonQuery()
+    END USING
+END USING
+
+#!markdown
+
+## Reading 
+
+Now that we have the structure of code, with the right names for Classes and Methods, you can check the code it self is the same as in the previous [Notebook about the Reader object](./04-Command_Reader.dib)
+
+> Copy this code
+
+        command:CommandText := "SELECT * FROM public.user"
+        BEGIN USING var reader := command:ExecuteReader()
+            IF (reader:HasRows)
+                DO WHILE reader:Read()
+                    var id := reader:GetInt32(0)
+                    var firstName := reader:GetString(1)
+                    ? i"{id} : {firstName}"
+                ENDDO
+            ELSE
+                ? "No User found."
+            ENDIF
+        END USING
+
+#!xsharp
+
+using System.IO
+using Npgsql
+
+var connectionString := NpgsqlConnectionStringBuilder{}
+connectionString:Host := "localhost"
+connectionString:Database := "xsharpnotebooks"
+connectionString:Username := "postgres"
+connectionString:Password := "root"
+
+BEGIN USING var connection := NpgsqlConnection{connectionString:ToString()}
+    connection:Open()
+    //
+    BEGIN USING var command := connection:CreateCommand()
+        // Paste here
+
+    END USING
+END USING
