@@ -1,0 +1,52 @@
+#!meta
+
+{"kernelInfo":{"defaultKernelName":"csharp","items":[{"aliases":[],"languageName":"csharp","name":"csharp"},{"aliases":[],"languageName":"X#","name":"xsharp"}]}}
+
+#!markdown
+
+# Load the *XSharp Language kernel*, and *SQLite package*
+
+#!csharp
+
+// <-= Press on the Arrow to run Me
+#r "nuget:Microsoft.Data.Sqlite, 8.0.5"
+#r "nuget:XSharpInteractive"
+
+#!xsharp
+
+// Load the DLL in the XSharpInteractive context
+#r "C:\Users\fabri\.nuget\packages\microsoft.data.sqlite.core\8.0.5\lib\net8.0\Microsoft.Data.Sqlite.dll"
+
+#!markdown
+
+# Command
+
+# Scalar
+
+Based on the previous Notebook, you will set your command in the `CommandText` property, and use the `ExecuteScalar()` method.  
+To method will return the first column of the first row of the resultSet, or null if there are not results.
+
+> Copy the following Query in the code block and test it.
+
+        command:CommandText := "SELECT Count() FROM user"
+        var result := command:ExecuteScalar()
+        IF result != NULL
+            ? i"{result}"
+        ENDIF
+
+#!xsharp
+
+using System.IO
+using Microsoft.Data.Sqlite
+#include "Xsharpdefs.xh"
+
+var connectionString := SqliteConnectionStringBuilder{}
+connectionString:DataSource := "Test.db"
+BEGIN USING var connection := SqliteConnection{connectionString:ToString()}
+    connection:Open()
+    //
+    BEGIN USING var command := connection:CreateCommand()
+        // Paste here
+
+    END USING
+END USING

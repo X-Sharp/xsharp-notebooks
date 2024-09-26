@@ -42,7 +42,7 @@ I hope you will enjoy your journey with **XSharp Interactive** !
 | Notebooks | Description| X# Dialect | Level | 
 | -------- |--- | ------- |---| 
 | [First Steps](./FirstSteps/00-Index.ipynb) | Start learning X# language | Core | Beginner
-| [Simple SQL](./WorkInProgress.ipynb) | Using SQLite in your X# Application, and change for MariaDB, PostgreSQL, ... | Core | Intermediate
+| [Simple SQL](./SimpleSQL/00-Index.dib) | Using SQLite in your X# Application, and change for MariaDB, PostgreSQL, ... | Core | Intermediate
 | [First Steps VFP](./WorkInProgress.ipynb) | Start X# with your VFP background | VFP | Beginner
 
 
