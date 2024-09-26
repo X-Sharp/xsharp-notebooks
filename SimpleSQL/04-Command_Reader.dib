@@ -1,0 +1,120 @@
+#!meta
+
+{"kernelInfo":{"defaultKernelName":"csharp","items":[{"aliases":[],"languageName":"csharp","name":"csharp"},{"aliases":[],"languageName":"X#","name":"xsharp"}]}}
+
+#!markdown
+
+# Load the *XSharp Language kernel*, and *SQLite package*
+
+#!csharp
+
+// <-= Press on the Arrow to run Me
+#r "nuget:Microsoft.Data.Sqlite, 8.0.5"
+#r "nuget:XSharpInteractive"
+
+#!xsharp
+
+// Load the DLL in the XSharpInteractive context
+#r "C:\Users\fabri\.nuget\packages\microsoft.data.sqlite.core\8.0.5\lib\net8.0\Microsoft.Data.Sqlite.dll"
+
+#!markdown
+
+# Command
+
+# Query : Use of Reader
+
+## SELECT
+
+The SQL SELECT statement returns a result set of rows, from one or more tables.
+
+To retrieve all the columns of the `user` table, you can write :
+>
+    SELECT id,name FROM user
+or
+>
+    SELECT * FROM user
+
+
+The SELECT statement has many following syntax:  
+- **SELECT \<list\>** is the list of columns to be returned by the query.  
+- **AS** is an option, and provides an alias for each column or expression in the SELECT list.   
+- **FROM** specifies from which table to get the data.  
+- **WHERE** specifies which rows to retrieve.  
+- **GROUP** BY allow to aggregate values that are sharing a property.  
+- **ORDER BY** specifies how to sort the returned rows.  
+
+Like in the previous Notebook, you will set your command in the `CommandText` property, and use the `ExecuteReader()` method. It will return a [SqliteDataReader](https://learn.microsoft.com/en-us/dotnet/api/microsoft.data.sqlite.sqlitedatareader) object.  
+To get the informations, you will have to `read()` the `SqliteReader`. Each time you do it you will advance in the ResultSet and the `SqliteReader`is filled with the data of the row.  
+You can check the number of columns in the current row using the `FieldCount`Property, and use one of the `GetXXX()` methods indicating the column to read as a parameter.
+
+> Copy the following Query in the code block and test it.
+
+        command:CommandText := "SELECT * FROM user"
+        BEGIN USING var reader := command:ExecuteReader()
+            IF (reader:HasRows)
+                DO WHILE reader:Read()
+                    var id := reader:GetInt32(0)
+                    var firstName := reader:GetString(1)
+                    ? i"{id} : {firstName}"
+                ENDDO
+            ELSE
+                ? "No User found."
+            ENDIF
+        END USING
+
+#!xsharp
+
+using System.IO
+using Microsoft.Data.Sqlite
+#include "Xsharpdefs.xh"
+
+var connectionString := SqliteConnectionStringBuilder{}
+connectionString:DataSource := "Test.db"
+BEGIN USING var connection := SqliteConnection{connectionString:ToString()}
+    connection:Open()
+    //
+    BEGIN USING var command := connection:CreateCommand()
+        // Paste here
+
+    END USING
+END USING
+
+#!markdown
+
+# PARAMETERS
+
+Don't forget that you can add some parameters to a Command.
+
+> Copy the following Query in the code block and test it.
+
+        VAR userId := 1
+        command:CommandText := "SELECT * FROM user WHERE id = @id"
+        command:Parameters:AddWithValue("@id", userId)
+        BEGIN USING var reader := command:ExecuteReader()
+            IF (reader:HasRows)
+                DO WHILE reader:Read()
+                    var id := reader:GetInt32(0)
+                    var firstName := reader:GetString(1)
+                    ? i"{id} : {firstName}"
+                ENDDO
+            ELSE
+                ? "No User found."
+            ENDIF
+        END USING
+
+#!xsharp
+
+using System.IO
+using Microsoft.Data.Sqlite
+#include "Xsharpdefs.xh"
+
+var connectionString := SqliteConnectionStringBuilder{}
+connectionString:DataSource := "Test.db"
+BEGIN USING var connection := SqliteConnection{connectionString:ToString()}
+    connection:Open()
+    //
+    BEGIN USING var command := connection:CreateCommand()
+        // Paste here
+
+    END USING
+END USING

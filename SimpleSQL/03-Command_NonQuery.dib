@@ -1,0 +1,177 @@
+#!meta
+
+{"kernelInfo":{"defaultKernelName":"csharp","items":[{"aliases":[],"languageName":"csharp","name":"csharp"},{"aliases":[],"languageName":"X#","name":"xsharp"}]}}
+
+#!markdown
+
+# Load the *XSharp Language kernel*, and *SQLite package*
+
+#!csharp
+
+// <-= Press on the Arrow to run Me
+#r "nuget:Microsoft.Data.Sqlite, 8.0.5"
+#r "nuget:XSharpInteractive"
+
+#!xsharp
+
+// Load the DLL in the XSharpInteractive context
+#r "C:\Users\fabri\.nuget\packages\microsoft.data.sqlite.core\8.0.5\lib\net8.0\Microsoft.Data.Sqlite.dll"
+
+#!markdown
+
+# Command
+
+First, we will need a table. To do so, we will send a **Command** to the SQLite engine.  
+
+There are different types of **Command** : *Query* or *NonQuery*.
+- *NonQuery* are typically used for SQL statements without results (e.g. `UPDATE`, `INSERT`, ...) (In fact it returns the count of rows effected by the Query.)
+- *Query* are used for any result set with multiple rows/columns. We will get the result through a ***Reader*** (e.g. `SELECT elt1,elt2 FROM table1`)
+- *Scalar* are also a kind of *Query* and are used when your Query returns a single value. If it returns more than one, then the result is the first column of the first row.
+
+# NonQuery
+
+## Table Creation
+
+Based on the previous paragraph, we can guess we will have to execute a *NonQuery* **Command**.
+
+In the code below, we are creating a table called user, with 2 columns/fields.  
+- **id** is an `Integer` and can`not` be `null`. It is a `Primary Key`, so unique and used as an index. Its value will be `AutoIncrement`ed when you add a record into the table.
+- **name** is a `Text` and can`not` be `null`.
+
+> Run the following code  
+> *You can only run it **once** as : The File will exist, and so the Table*  
+> If you want to run again, you will have to delete the **Test.db** file, and you may need to close the Notebook to do it.
+
+#!xsharp
+
+using System.IO
+using Microsoft.Data.Sqlite
+
+var connectionString := SqliteConnectionStringBuilder{}
+connectionString:DataSource := "Test.db"
+BEGIN USING var connection := SqliteConnection{connectionString:ToString()}
+    ? "Opening..."
+    connection:Open()
+    ? "Create DataBase..."
+    BEGIN USING var command := connection:CreateCommand()
+        command:CommandText := ;
+        "    CREATE TABLE user (" +;
+        "        id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"+;
+        "        name TEXT NOT NULL"+;
+        "    );"+;
+        "    INSERT INTO user"+;
+        "    VALUES  (1, 'Diana'),"+;
+        "            (2, 'Bruce'),"+;
+        "            (3, 'Peter'),"+;
+        "            (4, 'Natasha');"
+        command:ExecuteNonQuery()
+    END USING
+END USING
+
+#!markdown
+
+If you look closely to the pevious code, you can notice that we have created a BIG string with two SQL commands : 
+- one to CREATE the table 
+- one to INSERT records
+
+Now that the table exists, you may want to add some records.  
+
+#!markdown
+
+# INSERT record
+
+To ease the writing, you can use an XSharp instruction who's form is `TEXT TO <var> ... ENDTEXT`.  
+To use it, you will need to `#include` an external definition file, here `XSharpDefs.xh`.  
+This allows you to type a text in its *natural* form (with or without return/linefeed) and put it into a String \<var\>
+
+> Copy the following SQL INSERT command.
+
+    INSERT INTO user (name)
+    VALUES  ('Clark'),
+        ('Barry'),
+        ('Lois'),
+        ('Alan')
+
+#!xsharp
+
+using System.IO
+using Microsoft.Data.Sqlite
+#include "Xsharpdefs.xh"
+
+var connectionString := SqliteConnectionStringBuilder{}
+connectionString:DataSource := "Test.db"
+BEGIN USING var connection := SqliteConnection{connectionString:ToString()}
+    connection:Open()
+    //
+    LOCAL myCommand AS STRING
+    TEXT TO myCommand
+        // Paste Here
+    ENDTEXT
+    //
+    BEGIN USING var command := connection:CreateCommand()
+        command:CommandText := myCommand
+        command:ExecuteNonQuery()
+    END USING
+END USING
+
+#!markdown
+
+# PARAMETERS
+
+A **Command** represents an SQL statement to execute against a data source, the one used by the **Connection**.  
+
+In the previous sample, the list of user to add is constant, but you may have to enter a value that is the result of an operation or that the user has entered : This is where we will parameters.
+
+When you look at the INSERT command, it is organized this way :
+- **INSERT INTO** is the command itself
+- **user** is the table name
+- **( name )** is the list of field we will provide values for
+- **VALUES** indicate the beginning of the values
+- **('value1'), ('value2'),...** is the list of values
+
+You may want to write your personnal values this way :
+>
+        LOCAL myName AS STRING
+        myName := "Fabrice"
+        var commandText := "INSERT INTO user (name) VALUES ('" + nyName + "')"
+
+<span style="color:red">
+You should NOT do that !!!  
+</span>
+The risk is to have a **SQL Injection**. Adding strings to a SQL Command is a way to put some unwanted code into your command, and use your credentials when executing the Query.
+
+This is (one of the reason) why we will use parameters.
+
+In order to use parameters, you must create the **SQL Command** and put some *placeholders* starting with `@` where you want to have the values. Then use `AddWithValue` method to specify the *real* value.
+>
+         INSERT INTO <table> ( <field1>, <field2>) VALUES (@placeholder1, @placeholder2)
+
+> Copy the following code in the block, and test
+>
+        LOCAL myName AS STRING
+        myName := // Write your name here
+        ? "Adding user..."
+        command:CommandText = ;
+        "    INSERT INTO user (name)"+;
+        "    VALUES (@name)"
+        // 
+        command:Parameters:AddWithValue("@name", myName)
+        command:ExecuteNonQuery()
+
+Modify the code to check another userId.
+
+#!xsharp
+
+using System.IO
+using Microsoft.Data.Sqlite
+#include "Xsharpdefs.xh"
+
+var connectionString := SqliteConnectionStringBuilder{}
+connectionString:DataSource := "Test.db"
+BEGIN USING var connection := SqliteConnection{connectionString:ToString()}
+    connection:Open()
+    //
+    BEGIN USING var command := connection:CreateCommand()
+        // Paste here
+    END USING
+END USING

@@ -104,11 +104,11 @@ The first time you run it, you won't see any change, but if you try a second tim
 
 #!markdown
 
-## Variable lifetime: `using` statement
+## Variable lifetime: `BEGIN USING` instruction
 
-The `using` instruction provides a convenient syntax that ensures the correct use of objects by specifying their lifetime.   
+The `BEGIN USING` instruction provides a convenient syntax that ensures the correct use of objects by specifying their lifetime.   
 
-> The code below performs the same function as the previous one, but specifies when to _create_ and _delete_ the flow variable.   
+> The code below performs the same function as the previous one, but specifies when to _create_ and _delete_ the stream variable.   
 > The _deletion_ of the stream causes the stream to be closed, as the `FileStream` class is written that way.
 
 #!xsharp

@@ -1,0 +1,233 @@
+#!meta
+
+{"kernelInfo":{"defaultKernelName":"csharp","items":[{"aliases":[],"languageName":"csharp","name":"csharp"},{"aliases":[],"languageName":"X#","name":"xsharp"}]}}
+
+#!markdown
+
+# Load the *XSharp Language kernel*
+
+#!csharp
+
+// <-= Press on the Arrow to run Me
+#r "nuget:XSharpInteractive"
+
+#!markdown
+
+In the next Notebooks, we will use some features that doesn't exists in `Microsoft.Data.Sqlite`, so we will have to load a new Nuget Package called `System.Data.SQLite`.
+
+#!csharp
+
+// <-= Press on the Arrow to run Me
+#r "nuget:System.Data.SQLite"
+
+#!markdown
+
+This package is mostly a wrapper around the standard Sqlite code, so the DLL will have to load into **XSharpInteractive** has a *strange* name.  
+***Don't forget to adapt the path to your own configuration.***
+
+#!xsharp
+
+// Load the DLL in the XSharpInteractive context
+#r "C:\Users\fabri\.nuget\packages\stub.system.data.sqlite.core.netstandard\1.0.118\lib\netstandard2.0\System.Data.SQLite.dll"
+
+#!markdown
+
+# ADO.Net
+ADO.NET is a set of classes that expose data access services for .NET Framework programmers.
+
+## DataTable
+
+The [DataTable](https://learn.microsoft.com/en-us/dotnet/api/system.data.datatable) class is a central object in the ADO.NET library. Other objects that use DataTable include the [DataSet](https://learn.microsoft.com/en-us/dotnet/api/system.data.dataset) and the [DataView](https://learn.microsoft.com/en-us/dotnet/api/system.data.dataview).
+
+The DataTable stores data in memory, allowing for data manipulation without the need for a persistent database connection. This is useful for applications that need to work with data sets offline before updating a database.
+
+
+Here are some important ***methods*** of the **DataTable** class :
+- **NewRow()**: Creates a new DataRow with the same schema as the DataTable. This is used to add new rows to the table.  
+Example: `var newRow = dataTable:NewRow()`
+- **Rows:Add()**: Adds a DataRow to the DataRowCollection for the DataTable. This can be a newly created row or an existing row from another table.  
+Example: `dataTable:Rows:Add(newRow)`
+- **Clear()**: Clears all data (rows) from the DataTable but keeps the schema (columns and constraints). 
+
+Here are some important ***properties*** of the **DataTable** class :
+- **TableName**: Specifies the name of the DataTable. 
+- **Columns**: Provides access to the collection of DataColumn objects for the table. 
+- **Rows**: Provides access to the collection of DataRow objects in the table. This allows you to add, update, or delete rows in the table.
+
+## DataRow
+
+The **DataRow** and **DataColumn** objects are primary components of a ***DataTable***.  
+When you access the **Rows** property of a DataTable object you will have retrieve a ***DataRowCollection*** object.  
+
+Each element of the Collection is a **DataRow** object : Use the **DataRow** object and its properties and methods to retrieve and evaluate, insert, delete, and update the values in the DataTable.  
+Use the overloaded `Item[]` property to return or set the value of a DataColumn, using its *ordinal order* or its *name*.
+
+## SqlDataAdapter
+
+The **SqlDataAdapter** Object serves as a bridge between a DataTable and SQL Server for retrieving and saving data. It is used to execute SQL commands and fill the DataTable with results, and it can also update the database to reflect changes made in the DataSet.  
+The **SqlDataAdapter** is a class that represents a set of SQL commands and a database connection.
+
+Here are some important ***methods*** of the **SqlDataAdapter** class :
+- **Fill()**: This method adds or refreshes rows in the DataTable to match those in the data source.
+- **Update()**: This method applies changes made in the DataTable back to the data source. 
+
+## Practice
+
+> Copy and paste the following code :  
+>
+    VAR sqlCommand := "SELECT * FROM user"
+    BEGIN USING var adapter := SQLiteDataAdapter{ sqlCommand, connection }
+        // 
+        adapter:Fill( dt )
+    END USING
+
+> Then add you own code, to
+- Indicate how many Rows when have in the DataRowCollection. (***Hint***: Use `Length` to retrieve the size of **Arrays**, and `Count` for **Collection**s)
+- Enumerate all **DataRow**s object, and Print the value of the first `Item` of each DataRow. (Hint: Item collection starts at 0)
+- For each DataRow, Print the value of DataColumn called 'name'. (Hint: Put the name in the `[]`instead of the column number)
+
+#!xsharp
+
+using System.IO
+using System.Data
+#include "Xsharpdefs.xh"
+
+var connectionString := SQLiteConnectionStringBuilder{}
+connectionString:DataSource := "Test.db"
+var dt := DataTable{}
+BEGIN USING var connection := SQLiteConnection{connectionString:ToString()}
+    connection:Open()
+    // Paste here
+
+END USING
+// Add your own code here
+
+#!markdown
+
+Try the following code and adapt it to your needs :
+>
+    ? dt:Rows:Count
+    FOREACH oneRow AS DataRow IN dt:Rows
+        ? oneRow:Item[0] 
+        ?? " : " 
+        ?? oneRow["name"]
+    NEXT
+
+*Note that you can access the Value without using the **Item** property*
+
+#!markdown
+
+# CRUD
+### Create, Read, Update, Delete
+
+We have used the **Fill()** method of SQLiteDataAdapter, we will now use **Update()**.  
+
+But in order to push the changes to the server, we will have to create an UPDATE command corresponding to the SELECT you have used to Fill() the DataTable : This is where the `SqlCommandBuilder` will help us.
+
+## SqlCommandBuilder
+
+The **SqlDataAdapter** does not automatically generate the SQL statements required to reconcile changes made to a DataTable with the associated instance of SQL Server.  
+However, you can create a **SqlCommandBuilder** object to automatically generate SQL statements for single-table updates if you set the **SelectCommand** property of the **SqlDataAdapter**. 
+
+> Copy the following code to check the **UPDATE** command. This will show the `CommandText` property of the Command  
+
+    var sqlCommandBuilder := SQLiteCommandBuilder{adapter}
+    ? sqlCommandBuilder:GetUpdateCommand():CommandText
+
+> Then do the same to check the **INSERT** and **DELETE** commands.
+
+#!xsharp
+
+using System.IO
+using System.Data
+using System.Data.Sqlite
+#include "Xsharpdefs.xh"
+
+var connectionString := SQLiteConnectionStringBuilder{}
+connectionString:DataSource := "Test.db"
+var dt := DataTable{}
+BEGIN USING var connection := SQLiteConnection{connectionString:ToString()}
+    connection:Open()
+    // The Command used to choose the Data filling the DataTable
+    VAR sqlCommand := "SELECT * FROM user"
+    BEGIN USING var adapter := SQLiteDataAdapter{ sqlCommand, connection }
+        // Paste Here
+
+    END USING
+END USING
+
+#!markdown
+
+Now we can set the **UPDATE** command in the property `UpdateCommand` of the adapter, and do the same for **INSERT** and **DELETE**.
+
+> In the following code :
+- set the Commands in the adapter.
+- modify the `Item["name"]` of the second item (Index == 1) in the Rows collection : set its value to "Bruce Wayne".
+- **UPDATE** the **DataTable** using the adapter.
+- Write the content of the full **DataTable** to verify it has been **UPDATE**d
+
+#!xsharp
+
+using System.IO
+using System.Data
+using System.Data.Sqlite
+#include "Xsharpdefs.xh"
+
+var connectionString := SQLiteConnectionStringBuilder{}
+connectionString:DataSource := "Test.db"
+var dt := DataTable{}
+BEGIN USING var connection := SQLiteConnection{connectionString:ToString()}
+    connection:Open()
+    // The Command used to choose the Data filled into the DataTable
+    VAR sqlCommand := "SELECT * FROM user"
+    BEGIN USING var adapter := SQLiteDataAdapter{ sqlCommand, connection }
+        // Get the CommandBuilder
+        var sqlCommandBuilder := SQLiteCommandBuilder{adapter}
+        // Set Commands Here
+     
+
+        // Fill the DataTable
+        adapter:Fill( dt )
+
+        // Write your modification and update code here
+
+
+    END USING
+END USING
+// The DataTable has been closed...
+
+BEGIN USING var connection := SQLiteConnection{connectionString:ToString()}
+    connection:Open()
+    // The Command used to choose the Data filled into the DataTable
+    var sqlCommand := "SELECT * FROM user"
+    BEGIN USING var adapter := SQLiteDataAdapter{ sqlCommand, connection }
+        // First Clear the DataTable
+        dt:Clear()
+        // Fill the DataTable
+        adapter:Fill( dt )
+        ? "---= DataTable Content =---"
+        FOREACH oneRow AS DataRow IN dt:Rows
+            ? oneRow:Item[0] 
+            ?? " : " 
+            ?? oneRow["name"]
+        NEXT
+        ? "---=====================---"
+    END USING
+
+END USING
+
+#!markdown
+
+# SandBox
+
+We have written some code to update a SQLite DB with some existing content.  
+Use the following sandbox to enhance your application.
+
+- Add a new row in the DataTable with the INSERT Command
+- Reomve a row in the DataTable with the DELETE Command
+- Update the SQLite DB.
+- Print the content after your modifications
+
+#!xsharp
+
+? "SandBox"
