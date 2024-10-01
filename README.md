@@ -43,6 +43,7 @@ I hope you will enjoy your journey with **XSharp Interactive** !
 | -------- |--- | ------- |---| 
 | [First Steps](./FirstSteps/00-Index.ipynb) | Start learning X# language | Core | Beginner
 | [Simple SQL](./SimpleSQL/00-Index.dib) | Using SQLite in your X# Application, and change for MariaDB, PostgreSQL, ... | Core | Intermediate
+| [Entity Framework](./EntityFramework/01-01_Introduction.dib) | How to access your DB with an ORM ? Try Entity Framework with X# ! | Core | Beginner
 | [First Steps VFP](./WorkInProgress.ipynb) | Start X# with your VFP background | VFP | Beginner
 
 

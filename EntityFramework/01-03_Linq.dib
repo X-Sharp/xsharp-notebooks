@@ -1,0 +1,234 @@
+#!meta
+
+{"kernelInfo":{"defaultKernelName":"csharp","items":[{"aliases":[],"languageName":"csharp","name":"csharp"},{"aliases":[],"languageName":"X#","name":"xsharp"}]}}
+
+#!markdown
+
+## LINQ
+
+Entity Framework allows you to manipulate the underlying database, without building queries.
+But we're going to need to express the manipulations we want to do on the object model, and that's where **LINQ** comes in.
+
+Language-Integrated Query (**LINQ**) is the name of a set of technologies based on embedding query functionality directly into the C# language.
+Traditionally, queries over data are expressed as simple strings without compile-time type checking or IntelliSense support.
+In addition, you have to learn a different query language for each type of data source: SQL databases, XML documents, various web services, etc.
+
+With **LINQ**, a query is a first-class language construct, just like classes, methods, and events.
+
+When writing queries, the most visible "language-integrated" part of **LINQ** is the query expression. Query expressions are written in declarative query syntax.
+Using query syntax, you perform filtering, ranking, and grouping operations on data sources with minimal code. You use the same query expression patterns to query and transform data from any type of data source.
+
+#!markdown
+
+# Loading XSharpInteractive and all the packages
+
+#!csharp
+
+// <-= Press on the Arrow to run Me
+#r "nuget:Microsoft.EntityFrameworkCore.Sqlite"
+#r "nuget:XSharpInteractive"
+
+#!xsharp
+
+// Load the DLL in the XSharpInteractive context
+#r "C:\Users\fabri\.nuget\packages\microsoft.entityframeworkcore\8.0.8\lib\net8.0\Microsoft.EntityFrameworkCore.dll"
+#r "C:\Users\fabri\.nuget\packages\microsoft.entityframeworkcore.sqlite.core\8.0.8\lib\net8.0\Microsoft.EntityFrameworkCore.Sqlite.dll"
+
+#!markdown
+
+### Redefinition of the elements of the previous Notebook
+
+#!xsharp
+
+using Microsoft.EntityFrameworkCore
+using System
+using System.Linq
+using System.Collections.Generic
+
+
+CLASS Contact
+    PUBLIC PROPERTY ContactId AS INT AUTO
+    PUBLIC PROPERTY Name      AS STRING AUTO
+    PUBLIC PROPERTY FirstName AS STRING AUTO
+    PUBLIC PROPERTY Adress    AS STRING AUTO
+    PUBLIC PROPERTY ZipCode   AS STRING AUTO
+    PUBLIC PROPERTY City      AS STRING AUTO
+    PUBLIC PROPERTY Phone     AS STRING AUTO
+    PUBLIC PROPERTY EMail     AS STRING AUTO
+END CLASS
+
+PUBLIC CLASS AddressBookContext INHERIT DbContext
+    PUBLIC PROPERTY Contacts AS DbSet<Contact> AUTO
+
+    PUBLIC PROPERTY DbPath AS STRING AUTO GET
+
+    PUBLIC CONSTRUCTOR()
+        // We are looking for the FullPath definition of your "Documents" Folder.
+        // First get a 'System.Environment.SpecialFolder' object
+        var folder := Environment.SpecialFolder.MyDocuments
+        // Get the String for this folder
+        var path := Environment.GetFolderPath(folder)
+        // Set the FullPath for the SQLite DB file
+        DbPath := System.IO.Path.Join(path, "addressBook.db")
+    END CONSTRUCTOR
+
+    // On va configurer EF pour creer une BDD Sqlite
+    // dans le dossier "Mes Documents".
+    PROTECTED OVERRIDE METHOD OnConfiguring( options AS DbContextOptionsBuilder ) AS VOID
+        options:UseSqlite(i"Data Source={DbPath}")
+    END METHOD
+END CLASS
+
+
+
+var db := AddressBookContext{}
+
+Console.WriteLine(i"FullPath of DB: {db:DbPath}");
+// Please, create the DB if necessary
+db:Database:EnsureCreated()
+
+#!markdown
+
+### Query
+
+For example, we can query the Contacts table by sorting the people by their ID, and here by retrieving the first element.  
+To do this, we use the `First()` method, but in this case we must check that the database is not empty. The other solution is to use the `FirstOrDefault<Contact>()` method. We can also retrieve the last using the `Last()` or `LastOrDefault()` method.
+
+#!xsharp
+
+// Reading
+? "Searching a Contact..."
+var searchID := 0
+var unContact := db:Contacts:OrderBy( { c => c:ContactId } ):FirstOrDefault<Contact>()
+
+IF unContact != null
+    ? i"Id - Nom : {unContact:ContactId} - {unContact:Name}"
+    searchID := unContact:ContactId
+ELSE
+    ? "Contacts Table is empty."
+ENDIF
+
+#!markdown
+
+Modify the above code by sorting by Name, and display the first and last retrieved objects.
+
+> If the database is empty, use the elements of the previous Notebook to add contacts.
+
+#!xsharp
+
+// Display first, last, all sorted by Name
+
+#!markdown
+
+### Selection by criteria
+
+You can also build more elaborate LINQ queries.
+
+The strength of LINQ is that it is possible to use two syntaxes: **Query** or **Method** (We also speak of **_FLUENT_** syntax)
+
+**Query Version**
+> <span style="color:blue">from</span> \<scope variable\> <span style="color:blue">in</span> \<Collection\>  
+> \<Standard Query Operators\> \<lambda expression\>  
+> \<Operator <span style="color:blue">select</span> or <span style="color:blue">groupBy</span> \> \<result\>
+
+#!markdown
+
+For example, browse a table by specifying a condition with `where`, and `select` the objects corresponding to this condition, as in the example below.
+
+> In fact, we build the query, and it is only executed when we want to read the result
+
+#!xsharp
+
+// The first line could be : LOCAL contactQuery AS IEnumerable<Contact>
+var contactQuery := from contact in db:Contacts ;
+                   where contact:Name == "Foray" ;
+                   select contact
+? "Query Version"
+FOREACH VAR oneContact IN contactQuery
+    ? i"Id - Name : {oneContact:ContactId} - {oneContact:Name}"
+NEXT
+
+#!markdown
+
+Here is the organization of the LINQ query:  
+![Query Syntax](.\assets\linq-query-syntax.jpg)
+
+There are about **50** standard query operators that LINQ supports.
+You can find more information on the [Microsoft Learn](https://learn.microsoft.com/en-us/dotnet/framework/data/adonet/ef/language-reference/standard-query-operators-in-linq-to-entities-queries#join-methods) site
+
+#!markdown
+
+**Method Version (FLUENT)**  
+This syntax uses the principle of *extension methods*, which are special methods:
+They do not belong directly to the class concerned, but their syntax indicates to the compiler that they add functionalities to a class: The EntityFramework package therefore adds these methods to the collections (among others).
+> We will not detail here the syntax and the functioning of *extension methods*
+
+Here is the organization in **FLUENT** syntax  
+![Query Syntax](.\assets\linq-query-syntax-fluent.jpg)
+
+#!xsharp
+
+var contactQuery2 := db:Contacts:Where( { contact => contact:Name:ToLower():Contains("a") } ):ToList()
+? "FLUENT Version"
+FOREACH  VAR oneContact IN contactQuery2
+    ? i"Id - Name : {oneContact:ContactId} - {oneContact:Name}"
+NEXT
+
+#!markdown
+
+## Update
+
+We now know how to add objects to the DataBase, and we know how to query this database to display certain elements according to criteria, and even to sort the results.
+But then, do you want to make modifications?? The question is quickly answered!
+
+With Entity Framework, the question does not arise! :)
+ 
+When you manipulate an object, you are in direct connection with the BDD, but the **DbContext** hides all the complexity of manipulation.  
+So you just have to modify the properties of an object, and do a `SaveChanges()`!
+
+#!xsharp
+
+// Update
+? "Update a Contact"
+var oneContact := db:Contacts ;
+    :OrderBy( { c => c:ContactId } );
+    :FirstOrDefault<Contact>()
+IF oneContact != null
+    oneContact:ZipCode := "07200"
+    oneContact:City := "Aubenas"
+    db:SaveChanges()
+    ? "Update Saved"
+ENDIF
+
+#!markdown
+
+This code block allows you to modify the first object stored in your database.
+
+### Exercise
+Check that you have at least 4 people in your database.  
+And modify them according to their `ContactId`: put different values ​​for even and odd numbers, then save the changes.  
+Finally, redisplay your entire address book.
+
+#!xsharp
+
+// Modify, Update and Print
+
+#!markdown
+
+## Delete
+
+If you have understood how Entity Framework works, you will have probably guessed that deleting an object in the DB works on the same principle as modifying it.  
+So we will delete the object that interests us using the DbContext, then update the DB using the `SaveChanges()` method.
+
+#!xsharp
+
+// Delete
+? "Delete a Contact"
+var oneContact := db:Contacts ;
+    :OrderBy( { c => c:ContactId } );
+    :FirstOrDefault<Contact>()
+IF oneContact != null
+    db:Remove(oneContact)
+    db:SaveChanges()
+    ? "Contact Deleted"
+ENDIF

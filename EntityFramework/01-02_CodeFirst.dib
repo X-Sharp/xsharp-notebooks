@@ -1,0 +1,184 @@
+#!meta
+
+{"kernelInfo":{"defaultKernelName":"csharp","items":[{"aliases":[],"languageName":"csharp","name":"csharp"},{"aliases":[],"languageName":"X#","name":"xsharp"}]}}
+
+#!markdown
+
+# Code First
+
+> **Prerequisites**
+Remember to load **NuGet** packages before running the code cells below.
+
+#!markdown
+
+# Load the *XSharp Language kernel*, and *SQLite EF package*
+
+#!csharp
+
+// <-= Press on the Arrow to run Me
+#r "nuget:Microsoft.EntityFrameworkCore.Sqlite"
+#r "nuget:XSharpInteractive"
+
+#!markdown
+
+<span style="color:red">
+<h2>Warning !! Dirty Hack !!</h2>
+As XSharp scripting engine doesn't support Nuget package load for now, we will have to force the load of the .DLL itself in the XSharp Interactive memory : Entity Framework and the SQLite version<br />
+When you load a package, it is placed in your profile folder in the path :<br />
+</span>
+"C:\Users\fabri\.nuget\packages\microsoft.entityframeworkcore.sqlite.core\8.0.8\lib\net8.0\Microsoft.EntityFrameworkCore.Sqlite.dll"
+"C:\Users\fabri\.nuget\packages\microsoft.entityframeworkcore\8.0.8\lib\net8.0\Microsoft.EntityFrameworkCore.dll"
+<span style="color:red"><br />
+In the following Notebooks, don't forget to adapt the path to **your** context.
+</span>
+
+#!xsharp
+
+// Load the DLL in the XSharpInteractive context
+#r "C:\Users\fabri\.nuget\packages\microsoft.entityframeworkcore\8.0.8\lib\net8.0\Microsoft.EntityFrameworkCore.dll"
+#r "C:\Users\fabri\.nuget\packages\microsoft.entityframeworkcore.sqlite.core\8.0.8\lib\net8.0\Microsoft.EntityFrameworkCore.Sqlite.dll"
+
+#!markdown
+
+## Table Model
+
+In the following example, we will create an application to manage an address book.
+We will define the model in a "simple" class to handle our contacts.
+
+The definition of the class specifies the structure of the table in which we will store our information.
+
+Identifying a field with the *suffix* **Id** indicates that it is a **primary** key, in **Auto Increment**, and that cannot be **NULL**, this is the case for **ContactId**.
+
+#!xsharp
+
+CLASS Contact
+    PUBLIC PROPERTY ContactId AS INT AUTO
+    PUBLIC PROPERTY Name      AS STRING AUTO
+    PUBLIC PROPERTY FirstName AS STRING AUTO
+    PUBLIC PROPERTY Adress    AS STRING AUTO
+    PUBLIC PROPERTY ZipCode   AS STRING AUTO
+    PUBLIC PROPERTY City      AS STRING AUTO
+    PUBLIC PROPERTY Phone     AS STRING AUTO
+    PUBLIC PROPERTY EMail     AS STRING AUTO
+END CLASS
+
+#!markdown
+
+## Database Structure
+
+### DbContext
+
+The **DbContext** class is an part of Entity Framework. A DbContext instance represents a session with the database that can be used to query and save instances of your entities to a database.
+
+**DbContext** in EF Core allows us to do the following:
+
+- Manage the database connection
+- Configure the model and relationship
+- Query the database
+- Save data to the database
+- Configure change tracking
+- Caching
+- Transaction management
+
+To use **DbContext** in our application, we need to create a class derived from **DbContext**: Here we will define an "abstraction" of our **Adress Book** DB.
+
+### DbSet
+
+The **DbSet\<TEntity\>** type allows EF Core to query and save objects of the specified entity in the database.
+**LINQ** queries (we'll talk about **LINQ** a bit later) on a **DbSet\<TEntity\>** will be translated into database queries.
+The ***EF Core API*** will create the *Contacts* table in the underlying SQLite database where each property of this class will be a column in the corresponding table.
+
+#!xsharp
+
+using Microsoft.EntityFrameworkCore
+using System
+using System.Collections.Generic
+
+PUBLIC CLASS AddressBookContext INHERIT DbContext
+    PUBLIC PROPERTY Contacts AS DbSet<Contact> AUTO
+
+    PUBLIC PROPERTY DbPath AS STRING AUTO GET
+
+    PUBLIC CONSTRUCTOR()
+        // We are looking for the FullPath definition of your "Documents" Folder.
+        // First get a 'System.Environment.SpecialFolder' object
+        var folder := Environment.SpecialFolder.MyDocuments
+        // Get the String for this folder
+        var path := Environment.GetFolderPath(folder)
+        // Set the FullPath for the SQLite DB file
+        DbPath := System.IO.Path.Join(path, "addressBook.db")
+    END CONSTRUCTOR
+
+    // On va configurer EF pour creer une BDD Sqlite
+    // dans le dossier "Mes Documents".
+    PROTECTED OVERRIDE METHOD OnConfiguring( options AS DbContextOptionsBuilder ) AS VOID
+        options:UseSqlite(i"Data Source={DbPath}")
+    END METHOD
+END CLASS
+
+#!markdown
+
+The `OnConfiguring()` method allows us to define the connection string to the database. In the case of SQLite, this allows us to specify the path to the file that contains the database.
+
+The creation of the `AddressBookContext` type object will define the structure of the database, its tables and their relationships.
+
+EF also provides us with tools to create it, via the call to `Database.EnsureCreated()`.
+
+#!xsharp
+
+using System
+using System.Linq
+
+var db := AddressBookContext{}
+
+Console.WriteLine(i"FullPath of DB: {db:DbPath}");
+// Please, create the DB if necessary
+db:Database:EnsureCreated()
+
+#!markdown
+
+> <span style="color:red">**!!! WARNING !!!**
+If you modify the database structure, do not forget to delete the file to force its creation at the next launch.
+</span>
+
+#!markdown
+
+### DbSet Add or DbContext Add?
+The `Add()` method will allow us to add an object to the data set (the table) named **Contacts**.  
+But it is also possible to call `Add()` on the RDB management object, here **AddressBookContext**: It is the type of the passed object that will determine the table to manipulate.
+
+### DbContext SaveChanges
+To apply the modification made, simply call the `SaveChanges()` method on the **AddressBookContext** object, and EF will generate and execute the queries necessary for the update.
+
+#!xsharp
+
+// Create a Contact
+? "Add a Contact"
+// Create a Contact Object
+var someBody := Contact{}
+someBody:Name := "Foray"
+someBody:FirstName := "Fabrice"
+// Add to the DbSet
+db:Contacts:Add( someBody )
+// But you can also add it to the DbContext
+// db:Add( someBody )
+// and Write to the DataBase
+db:SaveChanges()
+
+#!markdown
+
+Write the code block to add your information to the database, and do the same with the information of your closest friends.
+
+#!xsharp
+
+// Add a Contact
+
+#!markdown
+
+And to display all the elements of a table, simply browse the corresponding **DbSet**:
+
+#!xsharp
+
+FOREACH VAR unContact IN db:Contacts 
+    ? i"{unContact:ContactId} - {unContact:Name} {unContact:FirstName}"
+NEXT

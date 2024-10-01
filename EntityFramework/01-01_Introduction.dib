@@ -1,0 +1,37 @@
+#!meta
+
+{"kernelInfo":{"defaultKernelName":"csharp","items":[{"aliases":[],"name":"csharp"}]}}
+
+#!markdown
+
+# Introduction
+
+Throughout these Notebooks, we will use several external libraries.
+
+#!markdown
+
+## Install Entity Framework Core
+
+To install EF Core, install the package for the EF Core database provider(s) you want to target. This tutorial uses **SQLite**.
+
+> Run the code block to load the package: We will need to load the package at the beginning of each Notebook.
+
+#!csharp
+
+// <- Press Execute to install the SQLite EF Nuget Package
+#r "nuget: Microsoft.EntityFrameworkCore.Sqlite"
+
+#!markdown
+
+## Code First or DataBase First?
+
+Entity Framework will use a model of the database, that our application will *consume*.
+There are several approaches to obtain it
+
+### Code First
+
+We will define the Objects that we will manipulate via classes, and we will create the database from this model
+
+### DataBase First
+
+The database exists before the development of the application, and we will use tools that will *generate* the corresponding classes.
