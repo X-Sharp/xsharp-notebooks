@@ -1,0 +1,133 @@
+#!meta
+
+{"kernelInfo":{"defaultKernelName":"csharp","items":[{"aliases":[],"languageName":"csharp","name":"csharp"},{"aliases":[],"languageName":"X#","name":"xsharp"}]}}
+
+#!markdown
+
+# Database First
+
+We will now see how to obtain the Entity Framework object model from an existing database.
+
+> Unfortunately, we will not be able to do the manipulations *inside* the Notebook, but you will have to do a number of things from the command line.
+
+### **Prerequisites**
+To be able to generate code, we must install the **Entity Framework Core tools**.  
+To do this, open a command prompt (**cmd**) or a **Terminal** or run a **Terminal panel** from VSCode, and type the following command:
+> dotnet tool install --global dotnet-ef
+
+If you have a message indicating that `dotnet-ef is already installed`, we will check that you have the latest version.
+To do this, type the following command:
+> dotnet tool update --global dotnet-ef
+
+#!markdown
+
+## Creating a Library
+
+1. Open a command prompt (**cmd**) or a **Terminal** or run a **Terminal panel** from VSCode, and go to a working folder (eg C:\Temp)
+
+2. Create a folder named **DataLib**, and move with **cd** commands to this folder
+
+3. Type the following command:
+> dotnet new classlib
+
+The system will create a *Class Library application* that is using **C# language** named `DataLib` with a `Class1.cs` file and a project file named `DataLib.csproj`.
+
+4. Now type the following command:
+> dotnet add package Microsoft.EntityFrameworkCore.Design
+
+The system will add the **NuGet** dependencies of **Entity Framework** to your project.
+
+5. Type the command that will add SQLite support to **Entity Framework**
+> dotnet add package Microsoft.EntityFrameworkCore.Sqlite
+
+Our project is ready to be used, but do not close the command window yet, we will have another manipulation to do.
+
+#!markdown
+
+## Adding the database definition
+
+1. Copy the **AddressBook.db** file (it should be in your *Documents* folder) created in the previous Notebooks into the **DataLib** folder.
+
+2. Return to the command window, and type the following command
+> dotnet ef dbcontext scaffold "data source=addressBook.db" Microsoft.EntityFrameworkCore.Sqlite
+
+This command will generate the elements needed to manipulate our database with **Entity Framework**:
+- a *class* called **AddressBookContext** *inheriting* from **DbContext**
+- a *class* containing the definition of the **Contact** table
+- All classes are inside a *namespace* called **DataLib** (the name of the library)  
+
+Here is how the command is composed:
+- `dotnet` executes the command linked to .NET
+- `ef` specifies that we will use the **Entity Framework** tools
+- `dbcontext` indicates that we will use the commands linked to the **DbContext**
+- `scaffold` specifies that we want generate classes for the `data source` specified after. Here it is a SQLite connection string, but you can specify a connection string for other types of DB
+- `Microsoft.EntityFrameworkCore.Sqlite` specifies the DB engine that must be used to analyze the DB.
+
+We could have added :
+- `--output-dir` specifies in which folder the classes will be generated.  
+For eg with `--output-dir DataModel`, the `DataModel` folder that will be created, the generated code will be stored there and the generated classes will be contained in a *namespace* called **DataLib.DataModel**.
+
+In the end, the DLL has been generated in ***C:\temp\DataLib\bin\Debug\net8.0***, remember this path...
+
+3. Return to the command window, and type the following command
+> dotnet build
+
+#!markdown
+
+## Test the DB Access
+
+1. First, remember to install & load the needed NuGet packages
+
+#!csharp
+
+// <-= Press on the Arrow to run Me (in CSharp Context)
+#r "nuget:Microsoft.EntityFrameworkCore.Sqlite"
+#r "nuget:XSharpInteractive"
+
+#!xsharp
+
+// Load the DLL in the XSharpInteractive context (in XSharp Context)
+#r "C:\Users\fabri\.nuget\packages\microsoft.entityframeworkcore\8.0.8\lib\net8.0\Microsoft.EntityFrameworkCore.dll"
+#r "C:\Users\fabri\.nuget\packages\microsoft.entityframeworkcore.sqlite.core\8.0.8\lib\net8.0\Microsoft.EntityFrameworkCore.Sqlite.dll"
+
+#!markdown
+
+2. Now, let's load the DataLib.DLL in the XSharp Context
+
+#!xsharp
+
+#r "C:\temp\DataLib\bin\Debug\net8.0\DataLib.DLL"
+
+#!markdown
+
+3. Try to create an AddressBookContext object.
+
+#!xsharp
+
+using DataLib
+
+var db := AddressBookContext{}
+// Please, create the DB if necessary
+db:Database:EnsureCreated()
+
+#!markdown
+
+You should see a file called `addressBook.db` appearing in your NoteBook folder.
+
+Try to enumerate all the Contacts :
+
+#!xsharp
+
+FOREACH VAR unContact IN db:Contacts 
+    ? i"{unContact:ContactId} - {unContact:Name} {unContact:FirstName}"
+NEXT
+
+#!markdown
+
+> It is possible that no contact is displayed .... 
+
+Think about why, and fix the problem ;)
+
+#!xsharp
+
+// Manage your Database here
