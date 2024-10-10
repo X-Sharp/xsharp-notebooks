@@ -6,7 +6,7 @@
 
 # Load the *XSharp Language kernel*
 
-#!markdown
+#!csharp
 
 // <-= Press on the Arrow to run Me
 #r "nuget:XSharpInteractive"
